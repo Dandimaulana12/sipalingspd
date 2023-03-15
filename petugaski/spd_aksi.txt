@@ -1,0 +1,80 @@
+<?php 
+include '../koneksi.php';
+session_start();
+$kode = $_POST['hasil_kode'];
+$no_spd  = $_POST['no_spd'];
+$no_st = $_POST['no_st'];
+$tujuan = $_POST['tujuan'];
+$berangkat = $_POST['tgl_berangkat'];
+$pulang = $_POST['tgl_pulang'];
+$perihal = $_POST['perihal'];
+
+	$namafile = $_FILES['setuju']['name'];
+	$ukuranfile = $_FILES['setuju']['size'];
+	$error = $_FILES['setuju']['error'];
+	$tmpname = $_FILES['setuju']['tmp_name'];
+
+    $namafile1 = $_FILES['surtug']['name'];
+	$ukuranfile1 = $_FILES['surtug']['size'];
+	$error1 = $_FILES['surtug']['error'];
+	$tmpname1 = $_FILES['surtug']['tmp_name'];
+
+
+	if ($error === 4) {
+		echo "<script>alert('masukan file terlebih dahulu')</script>";
+		return false;
+	}
+    if ($error1 === 4) {
+		echo "<script>alert('masukan file terlebih dahulu')</script>";
+		return false;
+	}
+	$ekstensifileval = ['pdf'];
+	$ekstensifile = explode('.', $namafile);
+	$ekstensifile = strtolower(end($ekstensifile));
+
+    $ekstensifileval1 = ['pdf'];
+	$ekstensifile1 = explode('.', $namafile1);
+	$ekstensifile1 = strtolower(end($ekstensifile1));
+
+
+	if (!in_array($ekstensifile, $ekstensifileval)){
+		echo "<script> 
+  			   alert('file yang anda bukan gambar!');
+			   document.location.href='spd_tambah.php';
+  		      </script>";
+  		      return false;
+    }
+    if (!in_array($ekstensifile1, $ekstensifileval1)){
+		echo "<script> 
+  			   alert('file yang anda bukan gambar!');
+			   document.location.href='spd_tambah.php';
+  		      </script>";
+  		      return false;
+    }
+
+if ($ukuranfile > 250000000) {
+	echo "<script> 
+			 alert('file terlalu besar');
+			 document.location.href='spd_tambah.php';
+			</script>";
+			return false;
+}
+if ($ukuranfile1 > 250000000) {
+	echo "<script> 
+			 alert('file terlalu besar');
+			 document.location.href='spd_tambah.php';
+			</script>";
+			return false;
+}
+
+$status = "dalam antrian";
+$rincian ="";
+$user = $_SESSION['id'];
+$tambah = mysqli_query($koneksi, "insert into tabel_spd values (NULL,'$no_spd','$no_st','$tujuan','$berangkat','$pulang','$perihal','$namafile','$namafile1','$status','$rincian','$user')");
+
+if ($tambah) {
+    header("location:arsip2.php");
+    $cfile = mkdir("../spd/$no_spd");
+    move_uploaded_file($tmpname, '../spd/'.$no_spd.'/'.$namafile);
+    move_uploaded_file($tmpname1, '../spd/'.$no_spd.'/'.$namafile1);
+}
